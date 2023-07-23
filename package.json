@@ -5,6 +5,7 @@
     "faker": "^5.5.3",
     "fs": "^0.0.1-security",
     "https-proxy-agent": "^7.0.1",
-    "node-fetch": "^2.6.12"
+    "node-fetch": "^2.6.12",
+    "readline-sync": "^1.4.10"
   }
 }
