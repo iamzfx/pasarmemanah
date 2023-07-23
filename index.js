@@ -2,7 +2,8 @@ const { Wallet, ethers } = require("ethers");
 const fetch = require('node-fetch');
 const data = require("./input.json");
 const { faker } = require("@faker-js/faker");
-
+const { HttpsProxyAgent } = require('https-proxy-agent');
+const fs = require('fs');
 
 function createAccountEth() {
     const wallet = ethers.Wallet.createRandom();
@@ -59,7 +60,11 @@ const getCaptcha = (idCaptcha) => new Promise((resolve, reject) => {
     .catch(err => reject(err))
 });
 
-const registerAcc = (address, refferal_code, token, username) => new Promise((resolve, reject) => {
+
+
+let randomProxy = '';
+
+const registerAcc = (address, refferal_code, token, username, randomProxy) => new Promise((resolve, reject) => {
     fetch('https://fuji-v5-api.arrow.markets/v1/waitlist/register', {
         method: 'POST',
         headers: {
@@ -77,6 +82,7 @@ const registerAcc = (address, refferal_code, token, username) => new Promise((re
             'sec-gpc': '1',
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
         },
+        agent: new HttpsProxyAgent(randomProxy),
         body: JSON.stringify({
             'address': address,
             'referral_code': refferal_code,
@@ -90,6 +96,15 @@ const registerAcc = (address, refferal_code, token, username) => new Promise((re
 });
 
 (async () => {
+    const readfile = fs.readFileSync('./proxy.txt','utf-8');
+    const proxyList = readfile.split('\n');
+
+    
+    for(i=0;i<= proxyList.length;i++){
+    let bjir = proxyList[Math.floor(Math.random()*proxyList.length)];
+    let randomProxy = `http://${bjir}`;
+    console.log(randomProxy);
+
     const createAccountEthResult = createAccountEth();
 
     const privateKey = createAccountEthResult.privateKey;
@@ -125,7 +140,9 @@ const registerAcc = (address, refferal_code, token, username) => new Promise((re
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
     const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}${await randnumber(4)}`;
-    const regis = await registerAcc(address, refferal_code, token, username);
+    const regis = await registerAcc(address, refferal_code, token, username, randomProxy);
     console.log(regis);
 
+    
+}
 })();
